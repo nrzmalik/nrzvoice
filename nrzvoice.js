@@ -4,7 +4,7 @@ let currentStorylineVar = '';
 let currentTranscript = '';
 let previousTranscript = '';
 
-const initializeSpeechRecognition = () => {
+const initializeSpeechRecognition = (language = 'en-US') => {
   window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!window.SpeechRecognition) {
@@ -14,6 +14,7 @@ const initializeSpeechRecognition = () => {
 
   recognition = new SpeechRecognition();
   recognition.interimResults = true;
+  recognition.lang = language; // Set the language
 
   recognition.addEventListener('start', () => {
     recognizing = true;
@@ -55,11 +56,17 @@ const updateStorylineVariable = () => {
   currentTranscript = '';
 };
 
-const speechtotext = (storylineVar) => {
+const speechtotext = (storylineVar, language = 'en-US') => {
   currentStorylineVar = storylineVar;
 
+  // If recognition exists but language is different, destroy and reinitialize
+  if (recognition && recognition.lang !== language) {
+    recognition.abort();
+    recognition = null;
+  }
+
   if (!recognition) {
-    initializeSpeechRecognition();
+    initializeSpeechRecognition(language);
   }
 
   const player = GetPlayer();
@@ -67,4 +74,3 @@ const speechtotext = (storylineVar) => {
 
   recognition.start();
 };
-
